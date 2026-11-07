@@ -1,5 +1,5 @@
 import streamlit as st
-import google.genai as genai
+import google.generativeai as genai
 
 # إعداد واجهة الصفحة
 st.set_page_config(page_title="مساعد تقييم المعلمات", page_icon="🎓", layout="wide")
@@ -7,8 +7,9 @@ st.set_page_config(page_title="مساعد تقييم المعلمات", page_ico
 st.title("🎓 مساعد الذكاء الاصطناعي لتقييم أداء المعلمات والتطوير المهني")
 st.markdown("يقوم هذا المساعد بتحليل درجات الزيارة الصفية والملاحظات واستخراج تقرير شامل وموضوعي لخطط التطوير.")
 
-# مفتاح API الخاص بـ Gemini
-API_KEY = "AQ.Ab8RN6IpCMovxmstKRElwQQ5qX486sTVmK6kjas2zE9lh-Cyjw"
+# شريط جانبي لإدخال مفتاح الـ API
+st.sidebar.header("🔑 إعدادات الاتصال")
+api_key_input = st.sidebar.text_input("أدخلي مفتاح Gemini API Key هنا:", type="password", value="AQ.Ab8RN6Lz6NL0sdMGxG6vT2febFX-7vLxnYyuV8R5za4fu0SO8g")
 
 # نموذج إدخال البيانات
 with st.form("eval_form"):
@@ -34,13 +35,18 @@ with st.form("eval_form"):
     submit_btn = st.form_submit_button("🚀 تحليل وتقييم الأداء")
 
 if submit_btn:
-    if not teacher_name:
+    if not api_key_input:
+        st.error("⚠️ يرجى إدخال مفتاح Gemini API Key في الشريط الجانبي أولاً.")
+    elif not teacher_name:
         st.warning("يرجى إدخال اسم المعلمة.")
     else:
         with st.spinner("جاري تحليل البيانات واستخراج التقرير..."):
-            client = genai.Client(api_key=API_KEY)
-            
-            prompt = f"""
+            try:
+                # إعداد الاتصال بالمفتاح والطريقة الكلاسيكية المستقرة
+                genai.configure(api_key=api_key_input)
+                model = genai.GenerativeModel('gemini-1.5-flash')
+                
+                prompt = f"""
 أنت مستشار تربوي وخبير في تقييم أداء معلمات الطفولة المبكرة والاعتماد المهني.
 قم بتحليل بيانات الزيارة الصفية التالية واستخراج تقرير احترافي:
 
@@ -63,11 +69,7 @@ if submit_btn:
 3. مجالات التحسين ونقاط الضعف (المحاور التي حصلت على تقييم أقل بلغة تشجيعية).
 4. خطة التطوير المهني الفردية المقترحة (IDP) (تتضمن أهدافاً تطويرية، أنشطة مقترحة كالورش أو الزيارات التبادلية، ومؤشر زمني).
 """
-            try:
-                response = client.models.generate_content(
-                    model='gemini-1.5-flash',
-                    contents=prompt
-                )
+                response = model.generate_content(prompt)
                 st.success("تم التقييم بنجاح!")
                 st.markdown("---")
                 st.markdown(response.text)
