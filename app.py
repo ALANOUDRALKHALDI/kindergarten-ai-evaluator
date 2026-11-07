@@ -8,7 +8,7 @@ st.title("🎓 مساعد الذكاء الاصطناعي لتقييم أداء 
 st.markdown("يقوم هذا المساعد بتحليل درجات الزيارة الصفية والملاحظات واستخراج تقرير شامل وموضوعي لخطط التطوير.")
 
 # مفتاح API الخاص بـ Gemini
-api_key = st.sidebar.text_input("أدخلي مفتاح Gemini API Key:", type="password")
+API_KEY = "AQ.Ab8RN6IpCMovxmstKRElwQQ5qX486sTVmK6kjas2zE9lh-Cyjw"
 
 # نموذج إدخال البيانات
 with st.form("eval_form"):
@@ -34,13 +34,11 @@ with st.form("eval_form"):
     submit_btn = st.form_submit_button("🚀 تحليل وتقييم الأداء")
 
 if submit_btn:
-    if not api_key:
-        st.error("يرجى إدخال مفتاح Gemini API Key في الشريط الجانبي لتشغيل التحليل.")
-    elif not teacher_name:
+    if not teacher_name:
         st.warning("يرجى إدخال اسم المعلمة.")
     else:
         with st.spinner("جاري تحليل البيانات واستخراج التقرير..."):
-            client = genai.Client(api_key=api_key)
+            client = genai.Client(api_key=API_KEY)
             
             prompt = f"""
 أنت مستشار تربوي وخبير في تقييم أداء معلمات الطفولة المبكرة والاعتماد المهني.
@@ -67,7 +65,7 @@ if submit_btn:
 """
             try:
                 response = client.models.generate_content(
-                    model='gemini-2.5-flash',
+                    model='gemini-1.5-flash',
                     contents=prompt
                 )
                 st.success("تم التقييم بنجاح!")
